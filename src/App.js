@@ -6,14 +6,14 @@ import { useEffect } from 'react';
 import { LoadingView } from './component/Loading';
 import { motion, AnimatePresence } from "framer-motion"
 import StarRatings from 'react-star-ratings'
+import { Nav } from './component/Navigation';
 function App() {
   const [foodData, setFoodData] = useState({ isLoaded: false, item: null });
   const [selectedId, setSelectedId] = useState({data: false});
   const [loadMore, setLoadMore] = useState(false);
-  
   const [error, setError] = useState(false);
+  const [cartItems, setCartItems] = useState({data: ''});
   const url = "https://asm-dev-api.herokuapp.com/api/v1/food";
-  console.log(selectedId)
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -33,49 +33,82 @@ function App() {
     fetch(url)
     .then(res => res.json() )
     .then(
-      result => { setFoodData({isLoaded: true, item: result },
-      error => { 
-        console.log("error:",error);
-        setError(true);
-      });
-     })
+      (result) => { setFoodData({isLoaded: true, item: result })},
+      (error) => { console.log("error:",error); setError(true);}
+    )
 
   }, []);
-  return (
-    <div className="App">
-      {error === true && <div className="error"><p>Error</p> </div>}
 
-      {foodData.isLoaded === false ?
+  // const sumCartAmount = () => {
+  //   let str = " hello";
+  //   str = str.substring(1);
+
+     //ADD ALL ITEMS PRICE 
+//      const getCartTotalPrice = getOnlyAvailableCostValue.reduce((currentTotal,item)=>{
+//       return (item.cost_in_credits + currentTotal)
+// },0);
+  // }
+  const handleCallback = (childData) =>{
+    const isEmpyString = cartItems.data === '';
+    if (isEmpyString === true){
+      setCartItems({data: [...cartItems.data, childData]});
+    }
+    else{
+      const cartArrayValues = cartItems.data.map( cartData => {return cartData.data.id === childData.data.id });
+      const isIncluded = cartArrayValues.includes(true);
+      if (isIncluded === false){
+        setCartItems({data: [...cartItems.data, childData]});
+      }
+    }
+}
+const totalCartNo = cartItems.data.length || 0;
+return (
+    <div className="App">
+      {foodData.isLoaded === false 
+      && error === false ?
         <LoadingView />
+        
+        : 
+        error === true ? 
+        <div className="error">
+          <p>Something went wrong, check your internet connection.</p>
+        </div>
         :
         <>
+        {/* navigation */}
+        <Nav totalCartNo={totalCartNo} />
+        {/* end of navigation */}
           <motion.div 
             variants={container} initial="hidden" animate="show"
-            className="food-box-list">
+            className="food-box-list food-container">
             {/* <AnimateSharedLayout type="switch"> */}
             {foodData.item.data.meals.map( (data, id) => {
-              
               return (
                 // only show the first 6 items
                 id <= 5 &&
                 <motion.div
-                  onClick={() => setSelectedId({data: data})}
+                key={data.id}
+                  // onClick={() => setSelectedId({data: data})}
                   className="box-container"
                   variants={listItem}
                   whileHover={{ scale: .9 }}
                 >
                   <Box 
+                  // passing data from child to parent
+                  parentCallback = {handleCallback}
                   img={data.strMealThumb}
                   description={data.description}
                   rating={data.ratings}
                   foodName={data.title}
                   price={data.price}
                   smallInfo={data.strMeal}
+                  id={data.id}
                   />
                 </motion.div>)
             })}
 
             <AnimatePresence>
+              {/* modal */}
               {selectedId.data  && (
                 <motion.div 
                   className="g" layoutId={selectedId}>
@@ -119,24 +152,31 @@ function App() {
                   
                 </motion.div>
               )}
+              {/* end of modal */}
             </AnimatePresence>
             {/* </AnimateSharedLayout> */}
             
           </motion.div>
+          {/* load more */}
           {loadMore === false &&
             <div className="load-more">
               <button onClick={() => setLoadMore(true)}>Load More</button>
             </div>
           }
+          {/* end of load more */}
+
           {loadMore === true &&
             <motion.div 
-              variants={container} initial="hidden" animate="show"
+              variants={container}
+               initial="hidden" 
+               animate="show"
               className="food-box-list">
               {foodData.item.data.meals.map( (data, id) => {
                 return (
                    // only show the last 6 items
                   id > 5 &&
                     <motion.div
+                    key={data.id}
                       onClick={() => setSelectedId({data: data})}
                       className="box-container"
                       variants={listItem}

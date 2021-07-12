@@ -16,6 +16,7 @@
 }
 
 .box-inner .box-group .box__food-add {
+  cursor: pointer;
   background: #fa9e0d;
   color: #fff;
   padding: 30px;

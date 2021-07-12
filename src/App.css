@@ -5,8 +5,11 @@
     justify-content: center;
     margin: 30px;
 }
+.food-container{
+    margin-top: 80px;
+}
 .box-container{
-    cursor:pointer;
+    /* cursor:pointer; */
 }
 .g{
     background: #00000047;
@@ -58,4 +61,10 @@
 }
 .modal .title{
     padding: 10px 0;
+}
+.error{
+    height: 100vh;
+display: grid;
+place-content: center;
+color: #3c3c3ccc;
 }

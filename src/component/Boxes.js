@@ -3,7 +3,11 @@ import Truncate from 'react-truncate'
 import StarRatings from 'react-star-ratings'
 import './Boxes.css'
 
-export const Box = ({img, smallInfo, foodName, price, description, rating}) => {
+export const Box = ({id, img, smallInfo, foodName, price, description, rating, parentCallback}) => {
+    const getItemData = (data) => {
+        parentCallback(data);
+
+    }
     return (
             <div className="box-inner">
                 <img src={img} alt="food"/>
@@ -38,8 +42,10 @@ export const Box = ({img, smallInfo, foodName, price, description, rating}) => {
                             name='rating'
                             />
                         </div>
-                        <div className="box__food-add">
-                            <i class="gg-math-plus"></i>
+                        <div 
+                            onClick={ () => getItemData({data: {id, img, price, foodName}})}
+                            className="box__food-add">
+                            <i className="gg-math-plus"></i>
                         </div>
                         
                     </div>
